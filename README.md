@@ -10,12 +10,14 @@ approved templates, run campaigns, manage contacts and run a shared team inbox.
 
 It is run by [Wassenger](https://wassenger.com). There is nothing to install:
 point your client at `https://api.wassenger.com/mcp` and send your Wassenger API key
-in the `Authorization` header.
+in the `Authorization` header. Claude and ChatGPT on the web have no field for a header,
+so there the key goes in the address instead.
 
 ```text
 Remote URL:  https://api.wassenger.com/mcp
 Transport:   Streamable HTTP
 Auth:        Authorization: Bearer <WASSENGER_API_KEY>
+             or https://api.wassenger.com/mcp?key=<WASSENGER_API_KEY> for clients without headers
 ```
 
 ## Business API or personal account?
@@ -47,6 +49,26 @@ the Business API.
 
 ## Connect your client
 
+### Claude (web and desktop app)
+
+Open **Customize → Connectors**, click **+**, choose **Add custom connector**, give it a
+name and paste the address with your key:
+
+```text
+https://api.wassenger.com/mcp?key=YOUR_WASSENGER_API_KEY
+```
+
+Click **Add**. In a chat, open the **+** menu, choose **Connectors** and switch it on. On
+Team and Enterprise plans only an owner can add a custom connector, and everyone who uses
+it shares that key.
+
+### ChatGPT (web)
+
+ChatGPT reaches a custom MCP server from the web app, on the plans where OpenAI enables
+developer mode, and a workspace admin has to turn it on. Go to **Apps → Create**, paste the
+same address, choose **No authentication**, click **Scan tools** and then **Create**.
+Choosing OAuth fails, because this server publishes no OAuth metadata.
+
 ### Claude Code
 
 ```bash
@@ -54,10 +76,11 @@ claude mcp add --transport http wassenger https://api.wassenger.com/mcp \
   --header "Authorization: Bearer YOUR_WASSENGER_API_KEY"
 ```
 
-### Claude Desktop
+### Clients that only run local servers
 
-Claude Desktop starts local servers, so use the npm bridge from this repository
-(`mcp-wassenger`). It connects to the hosted server and sends your key in the
+Some clients only start local processes, like Claude Desktop configured through
+`claude_desktop_config.json`. Use the npm bridge from this repository
+(`mcp-wassenger`): it connects to the hosted server and sends your key in the
 `Authorization` header.
 
 ```json
@@ -127,8 +150,9 @@ const response = await openai.responses.create({
 
 ### Any other client
 
-Use the remote URL with Streamable HTTP and the `Authorization` header. If your client
-only runs local servers, use the npm bridge: `npx -y mcp-wassenger YOUR_WASSENGER_API_KEY`.
+Use the remote URL with Streamable HTTP and the `Authorization` header. If your client has
+no field for headers, use the `?key=` address; if it only runs local servers, use the npm
+bridge: `npx -y mcp-wassenger YOUR_WASSENGER_API_KEY`.
 
 ## What you can ask
 
@@ -163,9 +187,10 @@ the official Business API doesn't offer them.
 
 ## Security
 
-- Send the API key in the `Authorization` header. Older guides put it in the URL as
-  `?key=`; that still works for old installs but is deprecated, because URLs end up in
-  logs and browser history.
+- Use the `Authorization` header whenever your client has a field for it. A key in the
+  address (`?key=`) ends up in access logs, proxy logs, error reports and browser
+  history, so treat it as exposed: for Claude and ChatGPT on the web, create a key used
+  only there and revoke it if the address leaks.
 - An agent with this server can read your customers' messages and send messages in your
   name. Treat untrusted message content as untrusted input: keep approval on for tools
   that send or delete, as in the OpenAI example above.
@@ -174,13 +199,15 @@ the official Business API doesn't offer them.
 ## FAQ
 
 **Is there a WhatsApp MCP server I can use with Claude?**
-Yes. This one works with Claude Code, Claude Desktop and any MCP client, on top of the
-official WhatsApp Business API. Setup takes a URL and an API key.
+Yes. This one works in Claude on the web and in the desktop app as a custom connector,
+in Claude Code and in any MCP client, on top of the official WhatsApp Business API. Setup
+takes a URL and an API key.
 
 **How do I connect WhatsApp to Claude or ChatGPT as an AI agent?**
-Connect your number to Wassenger, then add this server to Claude, or to your agent built
-on the OpenAI API, with the configurations above. The agent can then read chats, reply,
-send templates and hand conversations to people on your team.
+Connect your number to Wassenger, then add this server: as a custom connector in Claude,
+as an app in ChatGPT's developer mode, or as an MCP tool in an agent built on the OpenAI
+API, with the configurations above. The agent can then read chats, reply, send templates
+and hand conversations to people on your team.
 
 **Do I need to keep a phone or computer switched on?**
 No. Numbers on the Business API run in Meta's cloud and the MCP server is hosted.
