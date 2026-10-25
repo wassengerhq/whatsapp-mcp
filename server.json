@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.wassenger/whatsapp",
+  "title": "WhatsApp Business API by Wassenger",
+  "description": "Send and read WhatsApp messages, templates, chats and campaigns through the official Business API.",
+  "version": "1.0.0",
+  "websiteUrl": "https://wassenger.com/integrations/claude",
+  "repository": {
+    "url": "https://github.com/wassengerhq/whatsapp-mcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://api.wassenger.com/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Your Wassenger API key as 'Bearer <key>'. Get it at https://app.wassenger.com/apikeys",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
